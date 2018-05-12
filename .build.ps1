@@ -1,7 +1,11 @@
 ﻿Set-StrictMode -Version Latest
 
-# $ProjectName      = ($BuildRoot -split '\\')[-1]
-$ProjectName      = $env:APPVEYOR_PROJECT_NAME
+if([string]::IsNullOrEmpty($env:APPVEYOR_PROJECT_NAME)) {
+	$ProjectName = ($BuildRoot -split '\\')[-1]
+} else {
+	$ProjectName = $env:APPVEYOR_PROJECT_NAME
+}
+
 $ArtifactPath     = "$BuildRoot\Artifacts"
 $ArtifactFullPath = "$ArtifactPath\$ProjectName.zip"
 
@@ -12,7 +16,7 @@ task Install {
 	Install-Module Pester -Scope CurrentUser -Force
 	# Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
 
-	Import-Module "$BuildRoot\$ProjectName.psd1" -Force
+	Import-Module "$BuildRoot\BuildTools\MyBuildTools" -Force
 }
 
 # task Analyze Install,{
@@ -71,7 +75,7 @@ task Clean {
 }
 
 # Builds an artifact into the artifact folder
-task BuildArtifact Clean,{
+task BuildArtifact Install,Clean,{
 	# Should skip this if not on master
 
 	try {
