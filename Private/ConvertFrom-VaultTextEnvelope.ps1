@@ -8,8 +8,7 @@ function ConvertFrom-VaultTextEnvelope {
 	Param(
 		[string]$VaultTextEnvelope
 	)
-	# Using ::None option because this is the only signature of Split() which expects String[]
-	$Lines = $VaultTextEnvelope.Split(@("`r`n", "`r", "`n"), [StringSplitOptions]::None)
+	$Lines = $VaultTextEnvelope.Split([string[]]@("`r`n", "`r", "`n"), [StringSplitOptions]::None)
 
 	$Headers = $Lines[0].Trim().Split(";")
 
