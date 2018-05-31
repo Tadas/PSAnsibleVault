@@ -13,7 +13,7 @@ task . <# Analyze, #> Test, SetVersion, BuildArtifact
 
 # Installs dependencies and imports the build utils module itself
 task Install {
-	Install-Module Pester -Scope CurrentUser -Force
+	Install-Module Pester -Scope CurrentUser -SkipPublisherCheck -Force
 	# Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
 
 	Import-Module "$BuildRoot\BuildTools\MyBuildTools" -Force
