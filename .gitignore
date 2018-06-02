@@ -1,2 +1,4 @@
 ﻿# Don't track build output
 Artifacts/
+
+BuildTime/
