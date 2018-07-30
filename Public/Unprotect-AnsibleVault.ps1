@@ -6,8 +6,8 @@
 		[string]$VaultText,
 
 		[Parameter(Mandatory=$true, Position=1)]
-		[ValidateNotNullOrEmpty()]
-		[string]$Secret
+		[ValidateNotNull()]
+		[System.Management.Automation.PSCredential]$Secret
 	)
 	
 	if (-not (Test-IsEncryptedVault $VaultText)){ throw "input is not vault encrypted data" }
@@ -16,6 +16,8 @@
 	
 	switch ($Envelope.Version) {
 		"1.1" {
+			if ($Envelope.CipherName -ne "AES256"){ throw "Unknown cipher name: $($Envelope.CipherName)" }
+
 			$ExtractedVaultText = ConvertFrom-VaultText -VaultText $Envelope.VaultText
 
 			[int]$key_length = 32
@@ -23,7 +25,7 @@
 
 			# Get a bunch of bytes which we'll split up later
 			$b_derivedkey = Get-PBKDF2 `
-								-Secret ([System.Text.Encoding]::ASCII.GetBytes($Secret)) `
+								-Secret ([System.Text.Encoding]::ASCII.GetBytes($Secret.GetNetworkCredential().Password)) `
 								-Salt $ExtractedVaultText.Salt `
 								-Iterations 10000 `
 								-NumberOfBytes (2 * $key_length + $iv_length)
