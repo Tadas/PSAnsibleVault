@@ -1,4 +1,4 @@
-$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.ps1', '.psm1'
 Import-Module "$here\..\$sut" -Force
 
@@ -21,6 +21,13 @@ Describe "AnsibleVaultCrypter" {
 		$global:TestSecret2 = [System.Management.Automation.PSCredential]::new(' ', (ConvertTo-SecureString -AsPlainText -String 'fred' -Force))
 
 		$global:UnsupportedVersionVector = "`$ANSIBLE_VAULT;1.0;AES256`n" +
+		"36643662303931336362356361373334663632343139383832626130636237333134373034326565`n" +
+		"3736626632306265393565653338356138626433333339310a323832663233316666353764373733`n" +
+		"30613239313731653932323536303537623362653464376365383963373366336335656635666637`n" +
+		"3238313530643164320a336337303734303930303163326235623834383337343363326461653162`n" +
+		"33353861663464313866353330376566346636303334353732383564633263373862`n"
+
+		$global:UnsupportedCipherVector = "`$ANSIBLE_VAULT;1.1;AES257`n" +
 		"36643662303931336362356361373334663632343139383832626130636237333134373034326565`n" +
 		"3736626632306265393565653338356138626433333339310a323832663233316666353764373733`n" +
 		"30613239313731653932323536303537623362653464376365383963373366336335656635666637`n" +
@@ -291,6 +298,9 @@ Describe "AnsibleVaultCrypter" {
 		It "handles unsupported versions" {
 			{ Unprotect-AnsibleVault -VaultText $global:UnsupportedVersionVector -Secret $global:TestSecret2} | Should -Throw "Unsupported vault version: 1.0"
 		}
+
+		It "handles unsupported ciphers" {
+			{ Unprotect-AnsibleVault -VaultText $global:UnsupportedCipherVector -Secret $global:TestSecret2} | Should -Throw "Unknown cipher name: AES257"
 		}
 	}
 }

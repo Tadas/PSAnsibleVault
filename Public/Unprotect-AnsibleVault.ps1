@@ -1,4 +1,4 @@
-function Unprotect-AnsibleVault {
+﻿function Unprotect-AnsibleVault {
 	[OutputType([string])]
 	Param(
 		[Parameter(Mandatory=$true, Position=0)]
@@ -16,6 +16,8 @@ function Unprotect-AnsibleVault {
 	
 	switch ($Envelope.Version) {
 		"1.1" {
+			if ($Envelope.CipherName -ne "AES256"){ throw "Unknown cipher name: $($Envelope.CipherName)" }
+
 			$ExtractedVaultText = ConvertFrom-VaultText -VaultText $Envelope.VaultText
 
 			[int]$key_length = 32
