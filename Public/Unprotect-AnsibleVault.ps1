@@ -1,4 +1,4 @@
-﻿function Unprotect-AnsibleVault {
+function Unprotect-AnsibleVault {
 	[OutputType([string])]
 	Param(
 		[Parameter(Mandatory=$true, Position=0)]
@@ -6,8 +6,8 @@
 		[string]$VaultText,
 
 		[Parameter(Mandatory=$true, Position=1)]
-		[ValidateNotNullOrEmpty()]
-		[string]$Secret
+		[ValidateNotNull()]
+		[System.Management.Automation.PSCredential]$Secret
 	)
 	
 	if (-not (Test-IsEncryptedVault $VaultText)){ throw "input is not vault encrypted data" }
@@ -23,7 +23,7 @@
 
 			# Get a bunch of bytes which we'll split up later
 			$b_derivedkey = Get-PBKDF2 `
-								-Secret ([System.Text.Encoding]::ASCII.GetBytes($Secret)) `
+								-Secret ([System.Text.Encoding]::ASCII.GetBytes($Secret.GetNetworkCredential().Password)) `
 								-Salt $ExtractedVaultText.Salt `
 								-Iterations 10000 `
 								-NumberOfBytes (2 * $key_length + $iv_length)
